@@ -1,5 +1,5 @@
 <template>
-  <section class="relative min-h-[90vh] py-8 flex items-center overflow-hidden">
+  <section id="#Hero" class="relative min-h-[90vh] py-8 flex items-center overflow-hidden">
     <!-- Gradient background -->
     <div class="absolute inset-0 bg-[image:var(--gradient-hero)] opacity-5"></div>
 

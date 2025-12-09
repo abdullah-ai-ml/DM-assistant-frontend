@@ -1,5 +1,5 @@
 <template>
-  <section class="py-24 relative">
+  <section id="#benefits" class="py-24 relative">
     <div class="container mx-auto px-6">
       <div class="grid lg:grid-cols-2 gap-16 items-center">
         <!-- Left - Benefits list -->

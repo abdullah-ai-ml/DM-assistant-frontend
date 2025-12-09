@@ -1,5 +1,5 @@
 <template>
-  <section class="py-24 relative">
+  <section id="#features" class="py-24 relative">
     <!-- Background Gradient -->
     <div class="absolute inset-0 bg-[image:var(--gradient-subtle)]"></div>
 
