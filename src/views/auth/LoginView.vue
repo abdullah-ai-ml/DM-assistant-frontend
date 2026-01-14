@@ -65,16 +65,6 @@ const handleSubmit = async ()=>{
 // }
 
 
-function handleGoogleOAuth(response) {
-    localStorage.setItem("google_oauth_token", response.credential);
-    // Handle Google OAuth login logic here
-}
-
-onMounted(()=>{
-    window.handleGoogleOAuth = handleGoogleOAuth;
-    message.value = "";
-})
-
 
 </script>
 <template>

@@ -7,40 +7,27 @@ import VideoAnalysis from "@/components/Dashboard/VideoAnalysis.vue";
 import AIInsights from "@/components/Dashboard/Allinsight.vue";
 import OAuthConnections from "@/components/Dashboard/OAuthConnection.vue";
 
+import { RouterLink } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
 
+const authStore = useAuthStore()
+const { logoutUser } = authStore
 
-// import { ref } from 'vue';
-
-// import { onMounted } from 'vue';
-// import router from "@/router";
-
-
-// let messsage = ref('');
-// let token = localStorage.getItem('token');
-// onMounted(async() => {
-  
-//     if(!token){
-//       router.push('/login')
-//     }
-//     const respnse = await fetch('http://127.0.0.1:5000/dashboard',{
-//         method: 'GET',
-//         headers:{
-//             Authorization: `Bearer ${token}`
-//         }
-//     });
-
-//     const data = await respnse.json();
-//     if(!data.ok){
-//       router.push('/login')
-//     }
-
-// });
+async function handleLogout(){
+    await logoutUser()
+}
 </script>
 
 <template>
   <DashboardLayout>
     <div class="space-y-8">
       <!-- Removed HeroSection -->
+      <div class="relative flex justify-end gap-3  border rounded-xl bg-white px-3" >
+        <button class="cursor-pointer bg-white my-3 px-3 py-1.5 border border-border bg-transparent rounded-md text-sm " >👤 Account  </button>
+
+        <button class="cursor-pointer bg-white my-3 px-3 py-1.5 border border-border bg-transparent rounded-md text-sm " @click="handleLogout">🔒 Logout</button>
+       
+      </div>
 
       <AnalyticsDashboard />
 

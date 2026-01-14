@@ -1,14 +1,15 @@
 <script setup>
 import { ref } from "vue";
+import { RouterLink } from "vue-router";
 
 const navigation = ref([
-  { name: "Dashboard", href: "#", icon: "🏠", current: true },
-  { name: "Campaigns", href: "#", icon: "🎯", current: false },
-  { name: "Analytics", href: "#", icon: "📊", current: false },
-  { name: "Video Analysis", href: "#", icon: "📤", current: false },
-  { name: "AI Insights", href: "#", icon: "💡", current: false },
-  { name: "Connections", href: "#", icon: "🔗", current: false },
-  { name: "Settings", href: "#", icon: "⚙️", current: false },
+  { name: "Dashboard", to: "/dashbaord", icon: "🏠", current: true },
+  { name: "Campaigns", to: "/dashboard/campaign", icon: "🎯", current: false },
+  { name: "Analytics", to: "#", icon: "📊", current: false },
+  { name: "Video Analysis", to: "#", icon: "📤", current: false },
+  { name: "AI Insights", to: "#", icon: "💡", current: false },
+  { name: "Connections", to: "#", icon: "🔗", current: false },
+  { name: "Settings", to: "#", icon: "⚙️", current: false },
 ]);
 </script>
 
@@ -38,14 +39,15 @@ const navigation = ref([
 
       <!-- Navigation -->
       <nav class="flex-1 px-4 py-6 space-y-2">
-        <button
+        <RouterLink
           v-for="item in navigation"
           :key="item.name"
           class="w-full flex items-center space-x-3 px-3 py-2 rounded-md text-left transition-all "
+          :to="item.to"
         >
           <span class="text-lg">{{ item.icon }}</span>
           <span class="hover:underline cursor-pointer" >{{ item.name }}</span>
-        </button>
+        </RouterLink>
       </nav>
 
       <!-- Footer -->

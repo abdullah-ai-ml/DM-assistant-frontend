@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
+import apiClient from "@/utils/axiosConf";
 
 
 export const useAuthStore = defineStore("auth", () => {
@@ -69,6 +70,7 @@ export const useAuthStore = defineStore("auth", () => {
             localStorage.setItem("email", userData.email);
             message.value = data.message;
             loading.value = false;
+            localStorage.setItem("google_connection", data.google_connection)
 
 
             router.push('/dashboard')
@@ -81,6 +83,21 @@ export const useAuthStore = defineStore("auth", () => {
         } finally {
             loading.value = false; // ✅ always reset loading
         }
+    }
+
+    async function logoutUser(){
+       try {
+            const response = await apiClient.post("/logout")
+            if(!response.data.ok){
+                alert("logout failed")
+                return;
+            }
+       } catch (error) {
+            alert(error)
+       } finally{
+            localStorage.removeItem('token')
+            router.push('/login')
+       }
     }
 
     async function resendVerificationEmail(email) {
@@ -170,6 +187,9 @@ export const useAuthStore = defineStore("auth", () => {
             throw error;
         }
     }
+    function getAccessToken(){
+        return localStorage.getItem("token") ?? ""
+    }
 
 
     return {
@@ -178,9 +198,11 @@ export const useAuthStore = defineStore("auth", () => {
        message,
         registerUser,
         loginUser,
+        logoutUser,
         resendVerificationEmail,
         forgetpassword,
         verifyToken,
-        changePassword
+        changePassword,
+        getAccessToken
     }
 })

@@ -1,21 +1,50 @@
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import { useConnectionStore } from "@/stores/connections";
+import { storeToRefs } from "pinia";
+import { useRoute } from "vue-router";
 
-const connections = ref([
-  {
-    name: "Google Ads",
-    description: "Connect your Google Ads account to manage campaigns",
-    status: "connected",
-    lastSync: "2 hours ago",
-  },
-  {
-    name: "Meta (Facebook)",
-    description:
-      "Connect your Meta Business account for Facebook & Instagram ads",
-    status: "disconnected",
-    lastSync: "Never",
-  },
-]);
+const route = useRoute()
+const store = useConnectionStore();
+
+let {handleConnection} = store;
+
+let { connections } = storeToRefs(store);
+
+onMounted(() => {
+    const google_status = route.query.google_ads;
+
+    const google_connection = localStorage.getItem('google_connection')
+
+    if (google_status && google_status === "connected") {
+        localStorage.setItem("google_connection", google_status)
+        connections.value.forEach(conn => {
+            if (conn.provider === 'google') {
+                conn.status = 'connected';
+            }
+        });
+        
+    }
+    else if(!google_connection){
+        connections.value.forEach(conn => {
+            if (conn.provider === 'google') {
+                conn.status = 'connected';
+            }
+        });
+    }
+});
+
+
+
+
+
+const handleConnect = async (connection) => {
+    try {
+        await handleConnection(connection);
+    } catch (err) {
+        console.error("Failed to trigger OAuth:", err);
+    }
+};
 </script>
 
 <template>
@@ -48,6 +77,7 @@ const connections = ref([
             {{ connection.status === "connected" ? "✔️" : "⚠️" }}
           </div>
 
+          <!-- meta  -->
           <div>
             <h3 class="font-medium">{{ connection.name }}</h3>
             <p class="text-sm text-muted-foreground">
@@ -74,12 +104,13 @@ const connections = ref([
 
           <!-- Action Button -->
           <button
-            class="px-3 py-1.5 rounded-md text-sm"
+            class="px-3 py-1.5 rounded-md text-sm cursor-pointer border "
             :class="
               connection.status === 'connected'
                 ? 'border border-border bg-transparent'
                 : 'bg-primary text-primary-foreground'
             "
+            @click="handleConnect(connection)"
           >
             {{ connection.status === "connected" ? "Reconnect" : "Connect" }}
           </button>

@@ -1,5 +1,11 @@
 <script setup>
 import { RouterLink } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+import { storeToRefs } from 'pinia';
+
+const authStore = useAuthStore()
+
+const {isLogin} = storeToRefs(authStore)
 
 // Assuming you would use an SVG for the icon instead of a library component
 // If you are using a utility library like 'lucide-vue-next', you would keep the import.
@@ -58,8 +64,10 @@ import { RouterLink } from 'vue-router';
             Contact
           </a>
         </div>
-
-        <div class="flex items-center gap-3">
+        <div v-if="isLogin" class="capitalize hover:bg-black text-white bg-[#222222] transition all duration-100 px-3 py-1.5 rounded">
+         <RouterLink to="/dashboard"> dashboard</RouterLink>
+        </div>
+        <div v-else class="flex items-center gap-3">
           <RouterLink to="/login"
             class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 hover:bg-accent hover:text-accent-foreground"
           >
