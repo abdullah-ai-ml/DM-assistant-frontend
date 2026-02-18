@@ -45,8 +45,6 @@ export const useAuthStore = defineStore("auth", () => {
     async function loginUser(userData) {
         loading.value = true;
         
-        console.log("Attempting login with:", userData); // ✅ log input data
-
         try {
             const response = await fetch("http://127.0.0.1:5000/login", {
                 method: "POST",

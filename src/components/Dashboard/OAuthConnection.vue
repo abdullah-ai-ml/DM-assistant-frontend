@@ -25,7 +25,7 @@ onMounted(() => {
         });
         
     }
-    else if(!google_connection){
+    else if(google_connection ){
         connections.value.forEach(conn => {
             if (conn.provider === 'google') {
                 conn.status = 'connected';
