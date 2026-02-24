@@ -10,7 +10,8 @@ import ForgetView from '@/views/auth/ForgetView.vue'
 import ChangePasswordView from '@/views/auth/ChangePasswordView.vue'
 import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
-import CampaingView from '@/views/CampaingView.vue'
+
+import CampaignView from '@/views/CampaignView.vue'
 
 
 
@@ -52,7 +53,7 @@ const router = createRouter({
     {
       path:'/dashboard/campaign',
       name:'campaign',
-      component:CampaingView,
+      component:CampaignView,
       meta: { requiresAuth: true }
     },
     {
@@ -74,18 +75,25 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
 
   const authStore = useAuthStore()
-  let { isLogin } = storeToRefs(authStore)
-
-  const token = localStorage.getItem('token');
-
-  if(token && !isLogin.value){
-    isLogin.value = true
-  }
 
   if (to.matched.some(record => record.meta.requiresAuth)) {
+
+    let { isLogin } = storeToRefs(authStore)
+
+    const token = localStorage.getItem('token');
+    if(token){
+      const isvalid = await authStore.verifyToken(token)
+      if(isvalid && !isLogin.value){
+        isLogin.value = true
+      }else{
+        isLogin.value = false
+      }
+    }
+   
+
     if (!token) {
       next({ name: 'login' });
     } 

@@ -49,7 +49,8 @@ watch(selectedCustomer, (newCustomer, oldCustomer) => {
       </div>
     </div>
 
-    <div >
+    <div v-if="!selectedCustomer" >Please Select Account.</div>
+    <div>
       <div v-if="customer_details == null && !customer_details.length">{{ error_messaging }}</div>
       <div v-if="campaigns && campaigns.length" class="p-4 space-y-4">
 
@@ -116,7 +117,7 @@ watch(selectedCustomer, (newCustomer, oldCustomer) => {
         </div>
       </div>
       <div v-else>{{ error_messaging }}</div>
-      
+  
     </div>
   </div>
 </template>

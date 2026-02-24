@@ -1,75 +1,70 @@
 import { defineStore } from "pinia";
-import { reactive, ref } from "vue";
 import apiClient from "@/utils/axiosConf";
+import router from "@/router";
+export const useGoogleAdsStore = defineStore('googleads', {
+    state: () => ({
+        error_messaging: "",
+        customer_details: [],
+        campaigns: [],
+        manager_id: "",
+        selectedCustomer: ""
+    }),
 
-export const useGoogleAdsStore = defineStore('googleads', () => {
+    actions: {
+        async handleGetCustomers() {
+            const is_google_connection = localStorage.getItem('google_connection');
 
-    let error_messaging = ref("")
-    let customer_details = ref([])
-    let campaigns = ref([])
-    let manager_id = ref("")
-    let selectedCustomer = ref("")
-
-    async function handleGetCustomers() {
-        const is_google_connection = localStorage.getItem('google_connection')
-
-        if (!is_google_connection) {
-            error_messaging.value = "Please connect your Google account"
-            return
-        }
-
-        try {
-            const response = await apiClient.get('/google/list_customers')
-
-            if (!response.data.ok) {
-                error_messaging.value = "You Have To create a Customer first to manage their campaigns"
-                customer_details.value = []
-
-            } else {
-                customer_details.value = response.data.clients || []
-                manager_id.value = response.data.manager_id
-            }
-
-        } catch (error) {
-            console.error("Something went wrong fetching Google customers:", error)
-            error_messaging.value = "Failed to fetch Google customers. Try again later."
-            customer_details.value = []
-        }
-    }
-
-
-
-    async function handleGetCampaign() {
-        try {
-            const request_body = JSON.stringify({ customer_id: selectedCustomer.value, manager_id: manager_id.value })
-            const response = await apiClient.post('/google/list_campaigns', request_body)
-            if (!response.data.ok) {
-                error_messaging.value = "Failed to fetch Google campaings. Try again later."
+            if (!is_google_connection) {
+                this.error_messaging = "Please connect your Google account";
                 return;
             }
-            campaigns.value = response.data.campaigns || []
 
-            if (!campaigns.value.length) {
-                error_messaging.value = "Please create campaigns to get started."
-            } else {
-                error_messaging.value = ""  // clear any previous message
+            try {
+                const response = await apiClient.get('/google/list_customers');
+
+                if(response.data.google_auth_required){
+                    this.error_messaging = "Please make sure the Google Ads Manager Account is connected"
+                }
+                else if(!response.data.ok) {
+                    this.error_messaging = "There Are No Customer Found To Manage Campaings";
+                    this.customer_details = [];
+                } else {
+                    this.customer_details = response.data.clients || [];
+                    this.manager_id = response.data.manager_id;
+                }
+            } catch (error) {
+                console.error("Something went wrong fetching Google customers:", error);
+                this.error_messaging = "Failed to fetch Google customers. Try again later.";
+                this.customer_details = [];
             }
+        },
 
-        } catch (error) {
-            console.error("Something went wrong fetching Google customers:", error)
-            error_messaging.value = "Failed to fetch Google campaings. Try again later."
-            campaigns.value = []
+        async handleGetCampaign() {
+            try {
+                const request_body = { 
+                    customer_id: this.selectedCustomer, 
+                    manager_id: this.manager_id 
+                };
+                
+                const response = await apiClient.post('/google/list_campaigns', request_body);
+                
+                if (!response.data.ok) {
+                    this.error_messaging = "Failed to fetch Google campaings. Try again later.";
+                    return;
+                }
+
+                this.campaigns = response.data.campaigns || [];
+
+                if (!this.campaigns.length) {
+                    this.error_messaging = "Please create campaigns to get started.";
+                } else {
+                    this.error_messaging = "";
+                }
+            } catch (error) {
+                console.error("Something went wrong fetching Google campaigns:", error);
+                this.error_messaging = "Failed to fetch Google campaings. Try again later.";
+                this.campaigns = [];
+            }
         }
     }
-
-    return {
-
-        error_messaging,
-        customer_details,
-        campaigns,
-        selectedCustomer,
-        handleGetCustomers,
-        handleGetCampaign
-    }
-
-})
+});

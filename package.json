@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heyputer/puter.js": "^2.2.10",
     "@tailwindcss/vite": "^4.1.13",
     "axios": "^1.13.2",
     "pinia": "^3.0.3",

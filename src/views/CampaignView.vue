@@ -1,4 +1,6 @@
 <script setup>
+import CampaignList from '@/components/CampaignView/CampaignList.vue';
+import CreateCampaignModel from '@/components/CampaignView/CreateCampaignModel.vue';
 import DashboardLayout from '@/components/Dashboard/DashboardLayout.vue';
 
 </script>
@@ -10,8 +12,7 @@ import DashboardLayout from '@/components/Dashboard/DashboardLayout.vue';
                     ➕ Create
                 </button>
             </div>
-            <div class="border rounded-md px-3 py-8" >
-                list of campaings created
-            </div>
+           <CampaignList  />
+           <CreateCampaignModel class="absolute top-1/2 left-1/2 -translate-x-[50%] -translate-y-[50%] " />
     </DashboardLayout>
 </template>

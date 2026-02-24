@@ -3,12 +3,10 @@ import { ref } from "vue";
 import { RouterLink } from "vue-router";
 
 const navigation = ref([
-  { name: "Dashboard", to: "/dashbaord", icon: "🏠", current: true },
+  { name: "Dashboard", to: "/dashboard", icon: "🏠", current: true },
   { name: "Campaigns", to: "/dashboard/campaign", icon: "🎯", current: false },
   { name: "Analytics", to: "#", icon: "📊", current: false },
-  { name: "Video Analysis", to: "#", icon: "📤", current: false },
   { name: "AI Insights", to: "#", icon: "💡", current: false },
-  { name: "Connections", to: "#", icon: "🔗", current: false },
   { name: "Settings", to: "#", icon: "⚙️", current: false },
 ]);
 </script>

@@ -1,206 +1,110 @@
-import { ref } from "vue";
 import { defineStore } from "pinia";
-import { useRouter } from "vue-router";
 import apiClient from "@/utils/axiosConf";
+import router from "@/router";
 
+export const useAuthStore = defineStore("auth", {
+    
+    state: () => ({
+        email: "",
+        isLogin: false,
+        token: "",
+        loading: false,
+        message: null,
+        google_connection: localStorage.getItem("google_connection") === "true"
+    }),
 
-export const useAuthStore = defineStore("auth", () => {
-
-    const router = useRouter();
-
-    let email = ref("");
-    let isLogin = ref(false);
-    let token = ref("");
-    let loading = ref(false);
-    let message = ref(null);
-
-    async function registerUser(userData) {
-        loading.value = true;
-        try {
-            let response = await fetch("http://127.0.0.1:5000/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(userData)
-            })
-            let data = await response.json();
-            
-            if (!data.ok) {
-                message.value = data.message;
-                loading.value = false;
-               
-                return;
+  
+    actions: {
+        async registerUser(userData) {
+            this.loading = true;
+            try {
+                let response = await fetch("http://127.0.0.1:5000/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(userData)
+                });
+                let data = await response.json();
+                
+                if (!data.ok) {
+                    this.message = data.message;
+                    return;
+                }
+                this.message = data.message;
+                localStorage.setItem("email", userData.email);
+                router.push('/verify'); // Pinia has access to router if setup correctly
+            } catch (error) {
+                throw error;
+            } finally {
+                this.loading = false;
             }
-            message.value = data.message;
-            loading.value = false
-            localStorage.setItem("email", userData.email);
-            router.push('/verify');
-            
-        } catch (error) {
-            throw error;
-        }
+        },
 
-    }
-    async function loginUser(userData) {
-        loading.value = true;
-        
-        try {
-            const response = await fetch("http://127.0.0.1:5000/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(userData),
-            });
+        async loginUser(userData) {
+            this.loading = true;
+            try {
+                const response = await fetch("http://127.0.0.1:5000/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(userData),
+                });
 
-            const data = await response.json();
-            console.log("Login response:", data);
+                const data = await response.json();
+                if (!data.ok) {
+                    this.message = data.message;
+                    return false;
+                }
 
-            if (!data.ok) {
-                message.value = data.message;
-                console.log("Login failed:", message.value); // ✅ log failure reason
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("email", userData.email);
+                localStorage.setItem("google_connection", data.google_connection);
+                
+                this.isLogin = true;
+                this.message = data.message;
+                
+                router.push('/dashboard');
+            } catch (err) {
+                console.error("Fetch error during login:", err);
                 return false;
+            } finally {
+                this.loading = false;
             }
+        },
 
-            localStorage.setItem("token", data.token);
-            isLogin.value = true;
-            localStorage.setItem("email", userData.email);
-            message.value = data.message;
-            loading.value = false;
-            localStorage.setItem("google_connection", data.google_connection)
-
-
-            router.push('/dashboard')
-            return;
-
-        } catch (err) {
-            console.error("Fetch error during login:", err);
-        
-            return false; // ✅ return false here
-        } finally {
-            loading.value = false; // ✅ always reset loading
-        }
-    }
-
-    async function logoutUser(){
-       try {
-            const response = await apiClient.post("/logout")
-            if(!response.data.ok){
-                alert("logout failed")
-                return;
-            }
-       } catch (error) {
-            alert(error)
-       } finally{
-            localStorage.removeItem('token')
-            router.push('/login')
-       }
-    }
-
-    async function resendVerificationEmail(email) {
-
-        loading.value = true;
-        try {
-            const response = await fetch("http://127.0.0.1:5000/resend-verification",{
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({email: email}),
-
-            })
-            const data = await response.json();
-            if(!data.ok){
-                message.value = data.message;
-                loading.value = false;
-                return;
-            }
-            message.value = data.message;
-            loading.value = false;
-        } catch (error) {
-            
-        }
-
-    }
-
-    async function forgetpassword(email){
-        const response = await fetch('http://127.0.0.1:5000/forget-email-send',{
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({email: email}),
-        });
-        const data = await response.json();
-        if(!data.ok){
-            message.value = data.message;
-            return;
-        }
-        message.value = data.message;
-    
-    }
-
-    async function verifyToken(token){
-        loading.value = true;
-        try {
-            const response = await fetch('http://127.0.0.1:5000/isvalid-token',{
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                },
-            })
-            const data = await response.json();
-            if(!data.ok){
-                loading.value = false;
+        async logoutUser() {
+            try {
+                await apiClient.post("/logout");
+            } catch (error) {
+                console.error("Logout API failed, clearing local state anyway", error);
+            } finally {
+                this.$reset(); 
+                localStorage.removeItem('token');
+                localStorage.removeItem('google_connection');
                 router.push('/login');
-                return;
             }
-        } catch (error) {
-            throw error;
-        }
-    }
+        },
+
+        async verifyToken(token) {
+            this.loading = true;
+            try {
+                const response = await apiClient.post('/isvalid-token')
+                const data = await response.json();
+                return !!data.ok;
+            } catch (error) {
+                return false;
+            } finally {
+                this.loading = false;
+            }
+        },
+
     
-
-    async function changePassword(password, token){
-        loading.value = true;
-        try {
-            const response = await fetch('http://127.0.0.1:5000/change-password',{
+        async forgetpassword(email) {
+            const response = await fetch('http://127.0.0.1:5000/forget-email-send', {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({password: password, token: token}),
-            })
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
+            });
             const data = await response.json();
-            if(!data.ok){
-                message.value = data.message;
-                loading.value = false;
-                router.push('/login');
-                return;
-            }
-        }
-        catch (error) {
-            throw error;
+            this.message = data.message;
         }
     }
-    function getAccessToken(){
-        return localStorage.getItem("token") ?? ""
-    }
-
-
-    return {
-        isLogin,
-        loading,
-       message,
-        registerUser,
-        loginUser,
-        logoutUser,
-        resendVerificationEmail,
-        forgetpassword,
-        verifyToken,
-        changePassword,
-        getAccessToken
-    }
-})
+});
