@@ -2,6 +2,17 @@ import { defineStore } from "pinia";
 import apiClient from "@/utils/axiosConf";
 import router from "@/router";
 
+
+
+
+//  {
+//                 name: "Meta (Facebook)",
+//                 description: "Connect your Meta Business account for Facebook & Instagram ads",
+//                 status: "disconnected",
+//                 provider: 'meta',
+//                 lastSync: "Never",
+//             },
+
 export const useConnectionStore = defineStore('connections', {
     state: () => ({
         isConnected: false,
@@ -11,16 +22,10 @@ export const useConnectionStore = defineStore('connections', {
                 description: "Connect your Google Ads account to manage campaigns",
                 status: "disconnected",
                 provider: 'google',
-                lastSync: "2 hours ago",
+               
                 customer_account: []
             },
-            {
-                name: "Meta (Facebook)",
-                description: "Connect your Meta Business account for Facebook & Instagram ads",
-                status: "disconnected",
-                provider: 'meta',
-                lastSync: "Never",
-            },
+           
         ]
     }),
 

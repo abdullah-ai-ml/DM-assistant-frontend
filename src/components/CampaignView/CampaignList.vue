@@ -1,6 +1,68 @@
+<script setup>
+import { useGoogleAdsStore } from "@/stores/googleAds"
+import apiClient from "@/utils/axiosConf"
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css';
+
+const googleAdStore = useGoogleAdsStore()
+const campaigns = googleAdStore.campaigns
+const manager_id = googleAdStore.manager_id
+const customer_id = googleAdStore.selectedCustomer
+// ---------- Helpers ----------
+
+const formatNumber = (value) => {
+  return new Intl.NumberFormat().format(value || 0)
+}
+
+const calculateBudgetUsage = (campaign) => {
+  if (!campaign.budget || campaign.budget === 0) return 0
+  return ((campaign.spent / campaign.budget) * 100).toFixed(1)
+}
+
+const statusBadgeClass = (status) => {
+  switch (status?.toLowerCase()) {
+    case "enabled":
+      return "bg-green-500/20 text-green-400"
+    case "paused":
+      return "bg-yellow-500/20 text-yellow-400"
+    case "removed":
+      return "bg-red-500/20 text-red-400"
+    default:
+      return "bg-gray-500/20 text-gray-500"
+  }
+}
+
+const performanceBadgeClass = (performance) => {
+  switch (performance?.toLowerCase()) {
+    case "up":
+      return "bg-green-500/20 text-green-400"
+    case "stable":
+      return "bg-yellow-500/20 text-yellow-400"
+    case "down":
+      return "bg-red-500/20 text-red-400"
+    default:
+      return "bg-gray-500/20 text-gray-500"
+  }
+}
+
+
+const handleDeletion = async (campaign_id) => {
+   const payload = {
+      manager_id: manager_id,
+      customer_id: customer_id,
+      campaign_id: campaign_id
+    }
+    const response = await apiClient.post('/google/search/delete', payload)
+    if(response.data.ok){
+      toast.success(response.data.message)
+    }else{
+      toast.warning(response.data.error)
+    }
+}
+</script>
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8">
-    <h1 class="text-3xl font-bold text-white mb-8">Campaign Overview</h1>
+  <div class="min-h-screen border bg-transparent rounded-xl shadow-xs mt-8 p-8">
+    <h1 class="text-3xl font-bold text-black  mb-8">Campaign Overview</h1>
 
     <div
       v-for="campaign in campaigns"
@@ -10,75 +72,95 @@
       <!-- Header -->
       <div class="flex justify-between items-start mb-5">
         <div>
-          <h2 class="text-xl font-semibold text-white">
+          <h2 class="text-xl font-semibold text-black">
             {{ campaign.name }}
           </h2>
-          <p class="text-sm text-gray-300">
+          <p class="text-sm text-gray-500">
             ID: {{ campaign.id }}
           </p>
         </div>
 
-        <span
-          :class="statusBadgeClass(campaign.status)"
-          class="px-3 py-1 rounded-full text-xs font-medium"
-        >
-          {{ campaign.status }}
-        </span>
-      </div>
+        <div class="flex flex-col items-end gap-2">
+          <span
+            :class="statusBadgeClass(campaign.status)"
+            class="px-3 py-1 rounded-full text-xs font-medium"
+          >
+            {{ campaign.status.toUpperCase() }}
+          </span>
 
-      <!-- Metrics -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-200 mb-6">
-        <div>
-          <p class="text-gray-400">Impressions</p>
-          <p class="font-semibold">{{ formatNumber(campaign.metrics.impressions) }}</p>
-        </div>
-
-        <div>
-          <p class="text-gray-400">Clicks</p>
-          <p class="font-semibold">{{ formatNumber(campaign.metrics.clicks) }}</p>
-        </div>
-
-        <div>
-          <p class="text-gray-400">Conversions</p>
-          <p class="font-semibold">{{ campaign.metrics.conversions }}</p>
-        </div>
-
-        <div>
-          <p class="text-gray-400">Cost</p>
-          <p class="font-semibold">
-            ${{ microsToCurrency(campaign.metrics.cost_micros) }}
-          </p>
+          <span
+            :class="performanceBadgeClass(campaign.performance)"
+            class="px-3 py-1 rounded-full text-xs font-medium"
+          >
+            {{ campaign.performance.toUpperCase() }}
+          </span>
         </div>
       </div>
 
-      <!-- Budget & Dates -->
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm text-gray-200 mb-6">
+      <!-- Core Metrics -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-500 mb-6">
         <div>
-          <p class="text-gray-400">Budget</p>
-          <p class="font-semibold">
-            ${{ microsToCurrency(campaign.campaign_budget.amount_micros) }}
-          </p>
+          <p class="text-gray-700">Impressions</p>
+          <p class="font-semibold">{{ formatNumber(campaign.impressions) }}</p>
         </div>
 
         <div>
-          <p class="text-gray-400">Start Date</p>
-          <p class="font-semibold">{{ campaign.start_date }}</p>
+          <p class="text-gray-700">Clicks</p>
+          <p class="font-semibold">{{ formatNumber(campaign.clicks) }}</p>
         </div>
 
         <div>
-          <p class="text-gray-400">End Date</p>
-          <p class="font-semibold">
-            {{ campaign.end_date || "No End Date" }}
-          </p>
+          <p class="text-gray-700">Conversions</p>
+          <p class="font-semibold">{{ campaign.conversions }}</p>
+        </div>
+
+        <div>
+          <p class="text-gray-700">Spend</p>
+          <p class="font-semibold">${{ campaign.spent.toFixed(2) }}</p>
         </div>
       </div>
 
-      <!-- CPC -->
-      <div class="mb-6 text-sm text-gray-200">
-        <p class="text-gray-400">Enhanced CPC</p>
-        <p class="font-semibold">
-          {{ campaign.manual_cpc.enhanced_cpc_enabled ? "Enabled" : "Disabled" }}
-        </p>
+      <!-- KPI Metrics -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-500 mb-6">
+        <div>
+          <p class="text-gray-700">CTR</p>
+          <p class="font-semibold">{{ campaign.ctr }}%</p>
+        </div>
+
+        <div>
+          <p class="text-gray-700">CPC</p>
+          <p class="font-semibold">${{ campaign.cpc }}</p>
+        </div>
+
+        <div>
+          <p class="text-gray-700">CVR</p>
+          <p class="font-semibold">{{ campaign.cvr }}%</p>
+        </div>
+
+        <div>
+          <p class="text-gray-700">CPA</p>
+          <p class="font-semibold">${{ campaign.cpa }}</p>
+        </div>
+      </div>
+
+      <!-- Budget & Platform -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-500 mb-6">
+        <div>
+          <p class="text-gray-700">Daily Budget</p>
+          <p class="font-semibold">${{ campaign.budget.toFixed(2) }}</p>
+        </div>
+
+        <div>
+          <p class="text-gray-700">Platform</p>
+          <p class="font-semibold">{{ campaign.platform }}</p>
+        </div>
+
+        <div>
+          <p class="text-gray-700">Budget Usage</p>
+          <p class="font-semibold">
+            {{ calculateBudgetUsage(campaign) }}%
+          </p>
+        </div>
       </div>
 
       <!-- Actions -->
@@ -97,7 +179,8 @@
 
         <button
           class="px-4 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-white shadow-sm transition"
-        >
+          @click="handleDeletion(campaign.id)"
+          >
           🗑️ Delete
         </button>
       </div>
@@ -105,75 +188,3 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from "vue"
-
-const campaigns = ref([
-  {
-    id: "1001",
-    name: "Spring Sales Campaign",
-    status: "ENABLED",
-    manual_cpc: { enhanced_cpc_enabled: true },
-    start_date: "2026-02-01",
-    end_date: "2026-03-31",
-    campaign_budget: { amount_micros: 500000000 }, // $500
-    metrics: {
-      impressions: 125000,
-      clicks: 3200,
-      conversions: 145,
-      cost_micros: 342000000 // $342
-    }
-  },
-  {
-    id: "1002",
-    name: "Brand Awareness Push",
-    status: "PAUSED",
-    manual_cpc: { enhanced_cpc_enabled: false },
-    start_date: "2026-01-10",
-    end_date: null,
-    campaign_budget: { amount_micros: 300000000 }, // $300
-    metrics: {
-      impressions: 98000,
-      clicks: 2100,
-      conversions: 80,
-      cost_micros: 198000000 // $198
-    }
-  },
-  {
-    id: "1003",
-    name: "Retargeting Campaign",
-    status: "REMOVED",
-    manual_cpc: { enhanced_cpc_enabled: true },
-    start_date: "2025-12-01",
-    end_date: "2026-01-15",
-    campaign_budget: { amount_micros: 200000000 }, // $200
-    metrics: {
-      impressions: 45000,
-      clicks: 1500,
-      conversions: 95,
-      cost_micros: 175000000 // $175
-    }
-  }
-])
-
-const formatNumber = (value) => {
-  return new Intl.NumberFormat().format(value || 0)
-}
-
-const microsToCurrency = (micros) => {
-  return ((micros || 0) / 1_000_000).toFixed(2)
-}
-
-const statusBadgeClass = (status) => {
-  switch (status) {
-    case "ENABLED":
-      return "bg-green-500/20 text-green-400"
-    case "PAUSED":
-      return "bg-yellow-500/20 text-yellow-400"
-    case "REMOVED":
-      return "bg-red-500/20 text-red-400"
-    default:
-      return "bg-gray-500/20 text-gray-300"
-  }
-}
-</script>

@@ -83,9 +83,7 @@ const handleConnect = async (connection) => {
             <p class="text-sm text-muted-foreground">
               {{ connection.description }}
             </p>
-            <p class="text-xs text-muted-foreground">
-              Last sync: {{ connection.lastSync }}
-            </p>
+            
           </div>
         </div>
 
