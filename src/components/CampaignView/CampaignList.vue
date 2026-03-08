@@ -1,8 +1,11 @@
 <script setup>
 import { useGoogleAdsStore } from "@/stores/googleAds"
 import apiClient from "@/utils/axiosConf"
+import { ref } from "vue";
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css';
+import UpdateCampaignModel from "./UpdateCampaignModel.vue";
+import { RouterLink } from "vue-router";
 
 const googleAdStore = useGoogleAdsStore()
 const campaigns = googleAdStore.campaigns
@@ -59,8 +62,25 @@ const handleDeletion = async (campaign_id) => {
       toast.warning(response.data.error)
     }
 }
+
+
+
+const show = ref(false)
+const campaign_id = ref('')
+const openCampaignModel = (id) => {
+    show.value = true
+    campaign_id.value = String(id)
+}
 </script>
 <template>
+
+
+  <UpdateCampaignModel 
+    :show="show"
+    :campaignId="campaign_id"
+   
+  />
+
   <div class="min-h-screen border bg-transparent rounded-xl shadow-xs mt-8 p-8">
     <h1 class="text-3xl font-bold text-black  mb-8">Campaign Overview</h1>
 
@@ -165,15 +185,17 @@ const handleDeletion = async (campaign_id) => {
 
       <!-- Actions -->
       <div class="flex gap-3">
-        <button
+        <RouterLink
           class="px-4 py-2 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-white shadow-sm transition"
-        >
+          :to="`/dashboard/campaign/${campaign.id}/analysis`"
+          >
           👁️ View
-        </button>
+        </RouterLink>
 
         <button
           class="px-4 py-2 rounded-xl bg-yellow-500/20 hover:bg-yellow-500/30 text-white shadow-sm transition"
-        >
+          @click="openCampaignModel(campaign.id)"
+          >
           ✏️ Update
         </button>
 

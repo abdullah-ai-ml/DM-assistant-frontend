@@ -12,6 +12,7 @@ import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 
 import CampaignView from '@/views/CampaignView.vue'
+import CampaignAnalysisView from '@/components/CampaignView/CampaignAnalysisView.vue'
 
 
 
@@ -55,6 +56,12 @@ const router = createRouter({
       name:'campaign',
       component:CampaignView,
       meta: { requiresAuth: true }
+    },
+    {
+      path:'/dashboard/campaign/:campaign_id/analysis',
+      name:'campaign_analysis',
+      component:CampaignAnalysisView,
+      meta:{ requiresAuth: true }
     },
     {
       path:'/forget-password',
