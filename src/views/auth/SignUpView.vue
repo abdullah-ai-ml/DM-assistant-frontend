@@ -128,7 +128,7 @@ const handleSubmit = async ()=>{
                             <label for="password" class="text-labels text-label">Password</label>
                             <div class="flex items-center border border-[#BEC3D0] rounded mt-2">
                                 <span class="px-3">
-                                    <PasswordKye />
+                                    <PasswordLock />
                                 </span>
                                 <input class="w-full p-3 outline-none" 
                                     type="password" 

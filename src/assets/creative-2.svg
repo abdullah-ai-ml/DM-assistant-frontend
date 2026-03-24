@@ -1,0 +1,23 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="160" y1="80" x2="1040" y2="595" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22C55E"/>
+      <stop offset="0.55" stop-color="#14B8A6"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="card" x1="240" y1="168" x2="960" y2="507" gradientUnits="userSpaceOnUse">
+      <stop stop-color="white" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="white" stop-opacity="0.08"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" rx="48" fill="url(#bg)"/>
+  <path d="M90 520C240 410 360 520 520 430C680 340 820 450 980 360C1140 270 1160 330 1180 340V675H90V520Z" fill="black" fill-opacity="0.10"/>
+  <rect x="210" y="150" width="780" height="420" rx="32" fill="url(#card)"/>
+  <rect x="260" y="210" width="460" height="56" rx="18" fill="black" fill-opacity="0.22"/>
+  <rect x="260" y="295" width="640" height="22" rx="11" fill="black" fill-opacity="0.18"/>
+  <rect x="260" y="329" width="580" height="22" rx="11" fill="black" fill-opacity="0.14"/>
+  <rect x="260" y="363" width="520" height="22" rx="11" fill="black" fill-opacity="0.10"/>
+  <rect x="260" y="450" width="250" height="64" rx="20" fill="white" fill-opacity="0.18"/>
+  <rect x="540" y="450" width="170" height="64" rx="20" fill="white" fill-opacity="0.12"/>
+  <rect x="730" y="450" width="170" height="64" rx="20" fill="white" fill-opacity="0.12"/>
+</svg>

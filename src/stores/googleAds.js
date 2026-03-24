@@ -4,10 +4,13 @@ import router from "@/router";
 export const useGoogleAdsStore = defineStore('googleads', {
     state: () => ({
         error_messaging: "",
+        customersLoading: false,
+        campaignsLoading: false,
         customer_details: [],
         campaigns: [],
         manager_id: "",
-        selectedCustomer: ""
+        selectedCustomer: "",
+        insights: {}
     }),
 
     actions: {
@@ -19,6 +22,7 @@ export const useGoogleAdsStore = defineStore('googleads', {
                 return;
             }
 
+            this.customersLoading = true;
             try {
                 const response = await apiClient.get('/google/list_customers');
 
@@ -36,10 +40,14 @@ export const useGoogleAdsStore = defineStore('googleads', {
                 console.error("Something went wrong fetching Google customers:", error);
                 this.error_messaging = "Failed to fetch Google customers. Try again later.";
                 this.customer_details = [];
+            } finally {
+                this.customersLoading = false;
             }
         },
 
         async handleGetCampaign() {
+            if (!this.selectedCustomer) return;
+            this.campaignsLoading = true;
             try {
                 const request_body = { 
                     customer_id: this.selectedCustomer, 
@@ -64,6 +72,8 @@ export const useGoogleAdsStore = defineStore('googleads', {
                 console.error("Something went wrong fetching Google campaigns:", error);
                 this.error_messaging = "Failed to fetch Google campaings. Try again later.";
                 this.campaigns = [];
+            } finally {
+                this.campaignsLoading = false;
             }
         }
     }

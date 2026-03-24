@@ -13,6 +13,7 @@ import { storeToRefs } from 'pinia'
 
 import CampaignView from '@/views/CampaignView.vue'
 import CampaignAnalysisView from '@/components/CampaignView/CampaignAnalysisView.vue'
+import AIAnalysisView from '@/views/AIAnalysisView.vue'
 
 
 
@@ -62,6 +63,12 @@ const router = createRouter({
       name:'campaign_analysis',
       component:CampaignAnalysisView,
       meta:{ requiresAuth: true }
+    },
+    {
+      path:'/dashboard/campaign/ai-analysis',
+      name:'ai-analysis',
+      component: AIAnalysisView,
+      meta: { requiresAuth: true }
     },
     {
       path:'/forget-password',

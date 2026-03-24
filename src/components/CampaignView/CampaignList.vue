@@ -6,12 +6,20 @@ import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css';
 import UpdateCampaignModel from "./UpdateCampaignModel.vue";
 import { RouterLink } from "vue-router";
+import Spinner from "@/components/ui/Spinner.vue";
 
 const googleAdStore = useGoogleAdsStore()
-const campaigns = googleAdStore.campaigns
+
 const manager_id = googleAdStore.manager_id
 const customer_id = googleAdStore.selectedCustomer
+const campaignsLoading = googleAdStore.campaignsLoading
 // ---------- Helpers ----------
+
+const props = defineProps({
+  campaigns: Array,
+  customer_id: Number
+})
+
 
 const formatNumber = (value) => {
   return new Intl.NumberFormat().format(value || 0)
@@ -71,6 +79,10 @@ const openCampaignModel = (id) => {
     show.value = true
     campaign_id.value = String(id)
 }
+
+const handleToggle = () => {
+  show.value = !show.value
+}
 </script>
 <template>
 
@@ -78,24 +90,34 @@ const openCampaignModel = (id) => {
   <UpdateCampaignModel 
     :show="show"
     :campaignId="campaign_id"
-   
+    @close="handleToggle"
   />
 
-  <div class="min-h-screen border bg-transparent rounded-xl shadow-xs mt-8 p-8">
-    <h1 class="text-3xl font-bold text-black  mb-8">Campaign Overview</h1>
+  <div class="rounded-2xl border border-white/5 bg-white/[0.025] p-5">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <p class="text-[10px] font-mono text-slate-600 uppercase tracking-widest mb-1">Selected account</p>
+        <h2 class="text-sm font-bold text-white">Campaigns</h2>
+      </div>
+      <Spinner v-if="campaignsLoading" label="loading" size="sm" />
+    </div>
+
+    <p v-if="!props.customer_id" class="text-xs font-mono text-slate-600">
+      Select an account above to view campaigns.
+    </p>
 
     <div
-      v-for="campaign in campaigns"
+      v-for="campaign in props.campaigns"
       :key="campaign.id"
-      class="mb-6 rounded-2xl bg-white/10 backdrop-blur-md shadow-md border border-white/20 p-6 transition hover:shadow-lg"
+      class="mb-4 rounded-2xl bg-white/[0.02] backdrop-blur-md border border-white/5 p-5 transition hover:border-white/10"
     >
       <!-- Header -->
       <div class="flex justify-between items-start mb-5">
         <div>
-          <h2 class="text-xl font-semibold text-black">
+          <h3 class="text-base font-semibold text-white">
             {{ campaign.name }}
-          </h2>
-          <p class="text-sm text-gray-500">
+          </h3>
+          <p class="text-[10px] font-mono text-slate-600 uppercase tracking-widest">
             ID: {{ campaign.id }}
           </p>
         </div>
@@ -103,14 +125,14 @@ const openCampaignModel = (id) => {
         <div class="flex flex-col items-end gap-2">
           <span
             :class="statusBadgeClass(campaign.status)"
-            class="px-3 py-1 rounded-full text-xs font-medium"
+            class="px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest"
           >
             {{ campaign.status.toUpperCase() }}
           </span>
 
           <span
             :class="performanceBadgeClass(campaign.performance)"
-            class="px-3 py-1 rounded-full text-xs font-medium"
+            class="px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest"
           >
             {{ campaign.performance.toUpperCase() }}
           </span>
@@ -118,66 +140,66 @@ const openCampaignModel = (id) => {
       </div>
 
       <!-- Core Metrics -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-500 mb-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-slate-400 mb-6">
         <div>
-          <p class="text-gray-700">Impressions</p>
-          <p class="font-semibold">{{ formatNumber(campaign.impressions) }}</p>
+          <p class="text-slate-500 font-mono text-[10px] uppercase tracking-widest">Impressions</p>
+          <p class="font-semibold text-white">{{ formatNumber(campaign.impressions) }}</p>
         </div>
 
         <div>
-          <p class="text-gray-700">Clicks</p>
-          <p class="font-semibold">{{ formatNumber(campaign.clicks) }}</p>
+          <p class="text-slate-500 font-mono text-[10px] uppercase tracking-widest">Clicks</p>
+          <p class="font-semibold text-white">{{ formatNumber(campaign.clicks) }}</p>
         </div>
 
         <div>
-          <p class="text-gray-700">Conversions</p>
-          <p class="font-semibold">{{ campaign.conversions }}</p>
+          <p class="text-slate-500 font-mono text-[10px] uppercase tracking-widest">Conversions</p>
+          <p class="font-semibold text-white">{{ campaign.conversions }}</p>
         </div>
 
         <div>
-          <p class="text-gray-700">Spend</p>
-          <p class="font-semibold">${{ campaign.spent.toFixed(2) }}</p>
+          <p class="text-slate-500 font-mono text-[10px] uppercase tracking-widest">Spend</p>
+          <p class="font-semibold text-white">${{ campaign.spent.toFixed(2) }}</p>
         </div>
       </div>
 
       <!-- KPI Metrics -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-500 mb-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-slate-400 mb-6">
         <div>
-          <p class="text-gray-700">CTR</p>
-          <p class="font-semibold">{{ campaign.ctr }}%</p>
+          <p class="text-slate-500 font-mono text-[10px] uppercase tracking-widest">CTR</p>
+          <p class="font-semibold text-white">{{ campaign.ctr }}%</p>
         </div>
 
         <div>
-          <p class="text-gray-700">CPC</p>
-          <p class="font-semibold">${{ campaign.cpc }}</p>
+          <p class="text-slate-500 font-mono text-[10px] uppercase tracking-widest">CPC</p>
+          <p class="font-semibold text-white">${{ campaign.cpc }}</p>
         </div>
 
         <div>
-          <p class="text-gray-700">CVR</p>
-          <p class="font-semibold">{{ campaign.cvr }}%</p>
+          <p class="text-slate-500 font-mono text-[10px] uppercase tracking-widest">CVR</p>
+          <p class="font-semibold text-white">{{ campaign.cvr }}%</p>
         </div>
 
         <div>
-          <p class="text-gray-700">CPA</p>
-          <p class="font-semibold">${{ campaign.cpa }}</p>
+          <p class="text-slate-500 font-mono text-[10px] uppercase tracking-widest">CPA</p>
+          <p class="font-semibold text-white">${{ campaign.cpa }}</p>
         </div>
       </div>
 
       <!-- Budget & Platform -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-500 mb-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-slate-400 mb-6">
         <div>
-          <p class="text-gray-700">Daily Budget</p>
-          <p class="font-semibold">${{ campaign.budget.toFixed(2) }}</p>
+          <p class="text-slate-500 font-mono text-[10px] uppercase tracking-widest">Daily Budget</p>
+          <p class="font-semibold text-white">${{ campaign.budget.toFixed(2) }}</p>
         </div>
 
         <div>
-          <p class="text-gray-700">Platform</p>
-          <p class="font-semibold">{{ campaign.platform }}</p>
+          <p class="text-slate-500 font-mono text-[10px] uppercase tracking-widest">Platform</p>
+          <p class="font-semibold text-white">{{ campaign.platform }}</p>
         </div>
 
         <div>
-          <p class="text-gray-700">Budget Usage</p>
-          <p class="font-semibold">
+          <p class="text-slate-500 font-mono text-[10px] uppercase tracking-widest">Budget Usage</p>
+          <p class="font-semibold text-white">
             {{ calculateBudgetUsage(campaign) }}%
           </p>
         </div>
@@ -186,21 +208,21 @@ const openCampaignModel = (id) => {
       <!-- Actions -->
       <div class="flex gap-3">
         <RouterLink
-          class="px-4 py-2 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-white shadow-sm transition"
+          class="px-4 py-2 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-white shadow-sm transition text-sm font-mono"
           :to="`/dashboard/campaign/${campaign.id}/analysis`"
           >
           👁️ View
         </RouterLink>
 
         <button
-          class="px-4 py-2 rounded-xl bg-yellow-500/20 hover:bg-yellow-500/30 text-white shadow-sm transition"
+          class="px-4 py-2 rounded-xl bg-yellow-500/20 hover:bg-yellow-500/30 text-white shadow-sm transition text-sm font-mono"
           @click="openCampaignModel(campaign.id)"
           >
           ✏️ Update
         </button>
 
         <button
-          class="px-4 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-white shadow-sm transition"
+          class="px-4 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-white shadow-sm transition text-sm font-mono"
           @click="handleDeletion(campaign.id)"
           >
           🗑️ Delete
